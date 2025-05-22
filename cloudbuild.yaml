@@ -1,0 +1,57 @@
+steps:
+  - name: 'ubuntu'
+    id: 'print-working-directory'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Current working directory:"
+        pwd
+
+  - name: 'gcr.io/cloud-builders/git'
+    id: 'check-branch'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Current branch:"
+        git branch --show-current
+        if [[ $(git branch --show-current) != "main" && $(git branch --show-current) != "develop" ]]; then
+          echo "Error: This build should only run on main or develop branch."
+          exit 1
+        fi
+
+  - name: 'ubuntu'
+    id: 'list-files'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Listing files in the repository:"
+        ls -lha
+
+  - name: 'ubuntu'
+    id: 'run-tests'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Running a simple test (check if a file exists):"
+        if [ -f "README.md" ]; then
+          echo "README.md found. Test passed."
+        else
+          echo "Error: README.md not found. Test failed."
+          exit 1
+        fi
+        echo "All tests completed successfully."
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'docker-version-check'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Checking docker version:"
+        docker version --format '{{.Server.Version}}'
+
+timeout: 600s # Set a timeout for the build (10 minutes)
