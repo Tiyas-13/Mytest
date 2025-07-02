@@ -53,5 +53,7 @@ steps:
       - |
         echo "Checking docker version:"
         docker version --format '{{.Server.Version}}'
+options:
+  logging: CLOUD_LOGGING_ONLY
 
 timeout: 600s # Set a timeout for the build (10 minutes)
